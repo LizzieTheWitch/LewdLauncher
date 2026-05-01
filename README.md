@@ -6,10 +6,8 @@ Electron desktop launcher for Degrees of Lewdity that supports base and modded b
 
 - Launches the base game from a local folder.
 - Discovers mods by scanning subfolders in a mods directory.
-- Treats each mod folder as its own launch target when it contains `index.html`.
 - Supports standalone mod builds only (no merge/overlay behavior with the base folder).
 - Automatically discovers the single HTML entry file in each folder — no renaming required.
-- Provides an optional import button to copy an existing mod folder into the mods directory.
 
 ## Folder Structure
 
