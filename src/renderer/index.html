@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lewd Launcher</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="background-glow"></div>
+
+    <main class="layout">
+      <header class="hero">
+        <p class="eyebrow">Made by LizzieTheWitch</p>
+        <h1>Lewd Launcher</h1>
+        <p class="subtitle">
+          Launch the base game or any mod build by dropping folders into the launcher directories.
+        </p>
+      </header>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Base Game</h2>
+          <button id="open-base-folder" class="ghost">Open base-game folder</button>
+        </div>
+        <p id="base-status" class="status"></p>
+        <button id="launch-base" class="primary">Launch Base Game</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Mods</h2>
+          <div class="actions">
+            <button id="open-mods-folder" class="ghost">Open mods folder</button>
+            <button id="refresh-mods" class="ghost">Refresh</button>
+          </div>
+        </div>
+        <p class="status">Any subfolder in mods with an HTML file appears below.</p>
+        <ul id="mod-list" class="mod-list"></ul>
+      </section>
+
+      <section class="panel small">
+        <h2>Launcher Paths</h2>
+        <p class="path"><span>Root:</span> <strong id="path-root"></strong></p>
+        <p class="path"><span>Base:</span> <strong id="path-base"></strong></p>
+        <p class="path"><span>Mods:</span> <strong id="path-mods"></strong></p>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

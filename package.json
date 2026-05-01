@@ -1,0 +1,60 @@
+{
+  "name": "dol-launcher",
+  "version": "0.1.0",
+  "description": "Electron launcher for Degrees of Lewdity with folder-based mod support",
+  "main": "src/main/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "launcher",
+    "degrees-of-lewdity",
+    "twine"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.dol.launcher",
+    "productName": "Degrees of Lewdity Launcher",
+    "icon": "build/icon.png",
+    "files": [
+      "src/**/*",
+      "package.json",
+      "README.md"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "DoL Launcher"
+    }
+  }
+}
