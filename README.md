@@ -16,6 +16,9 @@ When the app starts, it creates this structure in your Documents folder:
 - `Documents/DoL Launcher/base-game`
 - `Documents/DoL Launcher/mods`
 
+For Linux.
+Just use wine for the install.
+
 ### Base Game Setup
 
 1. Put the base Degrees of Lewdity web build files into `base-game`.
