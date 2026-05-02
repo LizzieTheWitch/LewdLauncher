@@ -157,7 +157,7 @@ function createLauncherWindow() {
     height: 760,
     minWidth: 880,
     minHeight: 620,
-    title: "Degrees of Lewdity Launcher",
+    title: "LewdLauncher",
     backgroundColor: "#111315",
     icon: path.join(__dirname, "../../build/icon.png"),
     webPreferences: {

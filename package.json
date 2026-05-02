@@ -23,7 +23,7 @@
   },
   "build": {
     "appId": "com.dol.launcher",
-    "productName": "Degrees of Lewdity Launcher",
+    "productName": "LewdLauncher",
     "icon": "build/icon.png",
     "files": [
       "src/**/*",

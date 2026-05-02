@@ -1,4 +1,4 @@
-# Degrees of Lewdity Launcher
+# LewdLauncher
 
 Electron desktop launcher for Degrees of Lewdity that supports base and modded builds through folder drop-in.
 
