@@ -354,7 +354,7 @@ ipcMain.handle("launcher:export-save-file", async (_event, versionId, fileName) 
 
   const result = await dialog.showSaveDialog(launcherWindow, {
     title: "Export Save File",
-    defaultPath: fileName,
+    defaultPath: path.join(savePath, fileName),
     filters: [
       { name: "Save Files", extensions: ["save"] },
       { name: "All Files", extensions: ["*"] }
