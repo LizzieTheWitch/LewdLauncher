@@ -352,10 +352,25 @@ ipcMain.handle("launcher:export-save-file", async (_event, versionId, fileName) 
   const savePath = await getSavesFolderForVersion(paths.saves, versionId);
   const sourceFile = path.join(savePath, fileName);
 
-  // Open the save folder so user can copy/move the file
-  await shell.openPath(savePath);
+  try {
+    // Verify the file exists
+    const stats = await fsp.stat(sourceFile);
+    if (!stats.isFile()) {
+      throw new Error("Save file not found");
+    }
 
-  return savePath;
+    // Open the save folder using explorer.exe on Windows
+    const { execFile } = require("child_process");
+    execFile("explorer.exe", ["/select,", sourceFile], (error) => {
+      if (error) {
+        console.error("Explorer error:", error);
+      }
+    });
+
+    return savePath;
+  } catch (error) {
+    throw new Error(`Export failed: ${error.message}`);
+  }
 });
 
 app.whenReady().then(async () => {
