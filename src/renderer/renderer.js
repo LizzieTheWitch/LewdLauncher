@@ -205,7 +205,7 @@ async function createSaveItem(versionId, fileName) {
 
 async function importSaveHandler(versionId) {
   try {
-    const filePath = await window.launcher.pickSaveFile();
+    const filePath = await window.launcher.pickSaveFile(versionId);
     if (!filePath) {
       return;
     }

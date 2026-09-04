@@ -326,9 +326,13 @@ ipcMain.handle("launcher:open-save-folder", async (_event, versionId) => {
   await shell.openPath(savePath);
 });
 
-ipcMain.handle("launcher:pick-save-file", async (_event) => {
+ipcMain.handle("launcher:pick-save-file", async (_event, versionId) => {
+  const paths = await ensureLauncherDirectories();
+  const savePath = versionId ? await getSavesFolderForVersion(paths.saves, versionId) : paths.saves;
+
   const result = await dialog.showOpenDialog(launcherWindow, {
     title: "Import Save File",
+    defaultPath: savePath,
     filters: [
       { name: "Save Files", extensions: ["save"] },
       { name: "All Files", extensions: ["*"] }

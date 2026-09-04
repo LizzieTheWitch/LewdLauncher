@@ -10,5 +10,5 @@ contextBridge.exposeInMainWorld("launcher", {
   deleteSave: (versionId, fileName) => ipcRenderer.invoke("launcher:delete-save", versionId, fileName),
   importSave: (versionId, sourceFilePath) => ipcRenderer.invoke("launcher:import-save", versionId, sourceFilePath),
   openSaveFolder: (versionId) => ipcRenderer.invoke("launcher:open-save-folder", versionId),
-  pickSaveFile: () => ipcRenderer.invoke("launcher:pick-save-file")
+  pickSaveFile: (versionId) => ipcRenderer.invoke("launcher:pick-save-file", versionId)
 });
