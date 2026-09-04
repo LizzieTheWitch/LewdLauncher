@@ -297,8 +297,7 @@ openSavesHelpButton.addEventListener("click", () => {
     "1. Export a .save file from the game",
     "2. Click 'Import' to add it to the launcher",
     "3. Save files are stored separately for each game version",
-    "4. Use the save filename like a password to load your game state",
-    "5. You can rename and organize saves here"
+    "4. You can rename and organize saves here"
   ].join("\n");
   alert(help);
 });
