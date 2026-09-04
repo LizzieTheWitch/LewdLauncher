@@ -352,28 +352,30 @@ ipcMain.handle("launcher:export-save-file", async (_event, versionId, fileName) 
   const savePath = await getSavesFolderForVersion(paths.saves, versionId);
   const sourceFile = path.join(savePath, fileName);
 
-  const result = await dialog.showSaveDialog(launcherWindow, {
-    title: "Export Save File",
-    defaultPath: fileName,
-    defaultName: fileName,
-    message: `Save ${fileName} to:`,
-    filters: [
-      { name: "Save Files", extensions: ["save"] },
-      { name: "All Files", extensions: ["*"] }
-    ]
+  // First, let user pick destination folder
+  const folderResult = await dialog.showOpenDialog(launcherWindow, {
+    title: "Choose folder to export save file",
+    defaultPath: savePath,
+    properties: ["openDirectory"]
   });
 
-  if (result.canceled || !result.filePath) {
+  if (folderResult.canceled || folderResult.filePaths.length === 0) {
     return null;
   }
 
-  // Copy the file to the selected location
-  await fsp.copyFile(sourceFile, result.filePath);
+  const destFolder = folderResult.filePaths[0];
+  const destPath = path.join(destFolder, fileName);
 
-  // Open the folder containing the exported file
-  await shell.openPath(path.dirname(result.filePath));
+  try {
+    await fsp.copyFile(sourceFile, destPath);
 
-  return result.filePath;
+    // Open the folder to show the exported file
+    await shell.openPath(destFolder);
+
+    return destPath;
+  } catch (error) {
+    throw new Error(`Failed to export save: ${error.message}`);
+  }
 });
 
 app.whenReady().then(async () => {
