@@ -19,10 +19,9 @@ body {
   min-height: 100vh;
   color: var(--text);
   font-family: "Segoe UI", "Trebuchet MS", sans-serif;
-  background:
-    radial-gradient(circle at 15% 15%, rgba(110, 25, 75, 0.25), transparent 38%),
-    radial-gradient(circle at 80% 0%, rgba(65, 18, 100, 0.28), transparent 30%),
-    linear-gradient(170deg, #07050e 0%, #0e0816 45%, #160a22 100%);
+  background-image: url("../../build/bg.webp");
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 .background-glow {
