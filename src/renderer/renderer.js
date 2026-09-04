@@ -130,13 +130,6 @@ async function renderSaves() {
       const actions = document.createElement("div");
       actions.className = "save-card-actions";
 
-      const importBtn = document.createElement("button");
-      importBtn.className = "ghost small";
-      importBtn.textContent = "Import";
-      importBtn.addEventListener("click", async () => {
-        await importSaveHandler(version.id);
-      });
-
       const openBtn = document.createElement("button");
       openBtn.className = "ghost small";
       openBtn.textContent = "Open Folder";
@@ -144,13 +137,13 @@ async function renderSaves() {
         await window.launcher.openSaveFolder(version.id);
       });
 
-      actions.append(importBtn, openBtn);
+      actions.append(openBtn);
       header.append(title, actions);
 
       if (saves.length === 0) {
         const empty = document.createElement("p");
         empty.className = "save-empty";
-        empty.textContent = "No saves yet. Import a .save file to get started.";
+        empty.textContent = "No saves yet. Place .save files in the folder using Open Folder.";
         versionCard.append(header, empty);
       } else {
         const list = document.createElement("ul");
@@ -183,13 +176,6 @@ async function createSaveItem(versionId, fileName) {
   const actions = document.createElement("div");
   actions.className = "save-item-actions";
 
-  const exportBtn = document.createElement("button");
-  exportBtn.className = "ghost tiny";
-  exportBtn.textContent = "Export";
-  exportBtn.addEventListener("click", async () => {
-    await exportSaveHandler(versionId, fileName);
-  });
-
   const renameBtn = document.createElement("button");
   renameBtn.className = "ghost tiny";
   renameBtn.textContent = "Rename";
@@ -204,7 +190,7 @@ async function createSaveItem(versionId, fileName) {
     await deleteSaveHandler(versionId, fileName);
   });
 
-  actions.append(exportBtn, renameBtn, deleteBtn);
+  actions.append(renameBtn, deleteBtn);
   item.append(nameSpan, actions);
 
   return item;
@@ -311,7 +297,7 @@ openSavesHelpButton.addEventListener("click", () => {
   const help = [
     "How Saves Work:",
     "1. Export a .save file from the game",
-    "2. Click 'Import' to add it to the launcher",
+    "2. Place it in the save folder (Open Folder button)",
     "3. Save files are stored separately for each game version",
     "4. You can rename and organize saves here"
   ].join("\n");
