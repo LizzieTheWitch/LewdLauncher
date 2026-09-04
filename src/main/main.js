@@ -354,7 +354,9 @@ ipcMain.handle("launcher:export-save-file", async (_event, versionId, fileName) 
 
   const result = await dialog.showSaveDialog(launcherWindow, {
     title: "Export Save File",
-    defaultPath: path.join(savePath, fileName),
+    defaultPath: fileName,
+    defaultName: fileName,
+    message: `Save ${fileName} to:`,
     filters: [
       { name: "Save Files", extensions: ["save"] },
       { name: "All Files", extensions: ["*"] }
@@ -365,7 +367,12 @@ ipcMain.handle("launcher:export-save-file", async (_event, versionId, fileName) 
     return null;
   }
 
+  // Copy the file to the selected location
   await fsp.copyFile(sourceFile, result.filePath);
+
+  // Open the folder containing the exported file
+  await shell.openPath(path.dirname(result.filePath));
+
   return result.filePath;
 });
 
