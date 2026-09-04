@@ -347,6 +347,28 @@ ipcMain.handle("launcher:pick-save-file", async (_event, versionId) => {
   return result.filePaths[0];
 });
 
+ipcMain.handle("launcher:export-save-file", async (_event, versionId, fileName) => {
+  const paths = await ensureLauncherDirectories();
+  const savePath = await getSavesFolderForVersion(paths.saves, versionId);
+  const sourceFile = path.join(savePath, fileName);
+
+  const result = await dialog.showSaveDialog(launcherWindow, {
+    title: "Export Save File",
+    defaultPath: fileName,
+    filters: [
+      { name: "Save Files", extensions: ["save"] },
+      { name: "All Files", extensions: ["*"] }
+    ]
+  });
+
+  if (result.canceled || !result.filePath) {
+    return null;
+  }
+
+  await fsp.copyFile(sourceFile, result.filePath);
+  return result.filePath;
+});
+
 app.whenReady().then(async () => {
   await ensureLauncherDirectories();
   createLauncherWindow();

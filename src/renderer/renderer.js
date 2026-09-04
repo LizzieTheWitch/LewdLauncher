@@ -183,6 +183,13 @@ async function createSaveItem(versionId, fileName) {
   const actions = document.createElement("div");
   actions.className = "save-item-actions";
 
+  const exportBtn = document.createElement("button");
+  exportBtn.className = "ghost tiny";
+  exportBtn.textContent = "Export";
+  exportBtn.addEventListener("click", async () => {
+    await exportSaveHandler(versionId, fileName);
+  });
+
   const renameBtn = document.createElement("button");
   renameBtn.className = "ghost tiny";
   renameBtn.textContent = "Rename";
@@ -197,7 +204,7 @@ async function createSaveItem(versionId, fileName) {
     await deleteSaveHandler(versionId, fileName);
   });
 
-  actions.append(renameBtn, deleteBtn);
+  actions.append(exportBtn, renameBtn, deleteBtn);
   item.append(nameSpan, actions);
 
   return item;
@@ -215,6 +222,19 @@ async function importSaveHandler(versionId) {
     await renderSaves();
   } catch (error) {
     showToast(error.message || "Failed to import save", "error");
+  }
+}
+
+async function exportSaveHandler(versionId, fileName) {
+  try {
+    const exportPath = await window.launcher.exportSave(versionId, fileName);
+    if (!exportPath) {
+      return;
+    }
+
+    showToast(`Save exported to ${exportPath}`, "ok");
+  } catch (error) {
+    showToast(error.message || "Failed to export save", "error");
   }
 }
 
