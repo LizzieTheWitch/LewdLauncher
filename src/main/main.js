@@ -32,7 +32,8 @@ function getLauncherPaths() {
   return {
     root,
     base: path.join(root, "base-game"),
-    mods: path.join(root, "mods")
+    mods: path.join(root, "mods"),
+    saves: path.join(root, "saves")
   };
 }
 
@@ -41,6 +42,7 @@ async function ensureLauncherDirectories() {
 
   await fsp.mkdir(paths.base, { recursive: true });
   await fsp.mkdir(paths.mods, { recursive: true });
+  await fsp.mkdir(paths.saves, { recursive: true });
 
   const markerPath = path.join(paths.base, "README.txt");
   if (!fs.existsSync(markerPath)) {
@@ -68,6 +70,62 @@ function findHtmlEntry(dirPath) {
 
 function hasHtmlEntry(dirPath) {
   return findHtmlEntry(dirPath) !== null;
+}
+
+async function getSavesFolderForVersion(savesRoot, versionId) {
+  const savePath = path.join(savesRoot, versionId);
+  await fsp.mkdir(savePath, { recursive: true });
+  return savePath;
+}
+
+async function listSaveFiles(savesRoot, versionId) {
+  try {
+    const savePath = await getSavesFolderForVersion(savesRoot, versionId);
+    const entries = await fsp.readdir(savePath, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".save"))
+      .map((entry) => entry.name)
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+async function renameSaveFile(savesRoot, versionId, oldName, newName) {
+  const savePath = await getSavesFolderForVersion(savesRoot, versionId);
+  const oldPath = path.join(savePath, oldName);
+  const newPath = path.join(savePath, newName);
+
+  if (!newPath.startsWith(savePath)) {
+    throw new Error("Invalid save file name");
+  }
+
+  await fsp.rename(oldPath, newPath);
+  return newName;
+}
+
+async function deleteSaveFile(savesRoot, versionId, fileName) {
+  const savePath = await getSavesFolderForVersion(savesRoot, versionId);
+  const filePath = path.join(savePath, fileName);
+
+  if (!filePath.startsWith(savePath)) {
+    throw new Error("Invalid save file name");
+  }
+
+  await fsp.unlink(filePath);
+}
+
+async function importSaveFile(savesRoot, versionId, sourceFilePath) {
+  const savePath = await getSavesFolderForVersion(savesRoot, versionId);
+  const fileName = path.basename(sourceFilePath);
+  const destPath = path.join(savePath, fileName);
+
+  if (!destPath.startsWith(savePath)) {
+    throw new Error("Invalid save file name");
+  }
+
+  await fsp.copyFile(sourceFilePath, destPath);
+  return fileName;
 }
 
 async function listModFolders(modsDir) {
@@ -239,6 +297,50 @@ ipcMain.handle("launcher:launch", async (_event, target) => {
   });
 
   return { launched: true };
+});
+
+ipcMain.handle("launcher:list-saves", async (_event, versionId) => {
+  const paths = await ensureLauncherDirectories();
+  const saves = await listSaveFiles(paths.saves, versionId);
+  return saves;
+});
+
+ipcMain.handle("launcher:rename-save", async (_event, versionId, oldName, newName) => {
+  const paths = await ensureLauncherDirectories();
+  return await renameSaveFile(paths.saves, versionId, oldName, newName);
+});
+
+ipcMain.handle("launcher:delete-save", async (_event, versionId, fileName) => {
+  const paths = await ensureLauncherDirectories();
+  await deleteSaveFile(paths.saves, versionId, fileName);
+});
+
+ipcMain.handle("launcher:import-save", async (_event, versionId, sourceFilePath) => {
+  const paths = await ensureLauncherDirectories();
+  return await importSaveFile(paths.saves, versionId, sourceFilePath);
+});
+
+ipcMain.handle("launcher:open-save-folder", async (_event, versionId) => {
+  const paths = await ensureLauncherDirectories();
+  const savePath = await getSavesFolderForVersion(paths.saves, versionId);
+  await shell.openPath(savePath);
+});
+
+ipcMain.handle("launcher:pick-save-file", async (_event) => {
+  const result = await dialog.showOpenDialog(launcherWindow, {
+    title: "Import Save File",
+    filters: [
+      { name: "Save Files", extensions: ["save"] },
+      { name: "All Files", extensions: ["*"] }
+    ],
+    properties: ["openFile"]
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  return result.filePaths[0];
 });
 
 app.whenReady().then(async () => {

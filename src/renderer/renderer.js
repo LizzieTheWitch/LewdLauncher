@@ -5,6 +5,9 @@ const openModsFolderButton = document.getElementById("open-mods-folder");
 const refreshModsButton = document.getElementById("refresh-mods");
 const modList = document.getElementById("mod-list");
 
+const savesContainer = document.getElementById("saves-container");
+const openSavesHelpButton = document.getElementById("open-saves-help");
+
 const pathRoot = document.getElementById("path-root");
 const pathBase = document.getElementById("path-base");
 const pathMods = document.getElementById("path-mods");
@@ -98,11 +101,169 @@ function renderPaths() {
   pathMods.textContent = state.paths.mods;
 }
 
+async function renderSaves() {
+  savesContainer.innerHTML = "";
+
+  if (!state) {
+    return;
+  }
+
+  const versions = [
+    { id: "base-game", label: "Base Game" },
+    ...state.mods.map((mod) => ({ id: mod.name, label: mod.name }))
+  ];
+
+  for (const version of versions) {
+    try {
+      const saves = await window.launcher.listSaves(version.id);
+
+      const versionCard = document.createElement("div");
+      versionCard.className = "save-version-card";
+
+      const header = document.createElement("div");
+      header.className = "save-card-header";
+
+      const title = document.createElement("h3");
+      title.className = "save-version-title";
+      title.textContent = version.label;
+
+      const actions = document.createElement("div");
+      actions.className = "save-card-actions";
+
+      const importBtn = document.createElement("button");
+      importBtn.className = "ghost small";
+      importBtn.textContent = "Import";
+      importBtn.addEventListener("click", async () => {
+        await importSaveHandler(version.id);
+      });
+
+      const openBtn = document.createElement("button");
+      openBtn.className = "ghost small";
+      openBtn.textContent = "Open Folder";
+      openBtn.addEventListener("click", async () => {
+        await window.launcher.openSaveFolder(version.id);
+      });
+
+      actions.append(importBtn, openBtn);
+      header.append(title, actions);
+
+      if (saves.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "save-empty";
+        empty.textContent = "No saves yet. Import a .save file to get started.";
+        versionCard.append(header, empty);
+      } else {
+        const list = document.createElement("ul");
+        list.className = "save-list";
+
+        for (const save of saves) {
+          const item = await createSaveItem(version.id, save);
+          list.appendChild(item);
+        }
+
+        versionCard.append(header, list);
+      }
+
+      savesContainer.appendChild(versionCard);
+    } catch (error) {
+      console.error(`Failed to load saves for ${version.id}:`, error);
+    }
+  }
+}
+
+async function createSaveItem(versionId, fileName) {
+  const item = document.createElement("li");
+  item.className = "save-item";
+
+  const nameSpan = document.createElement("span");
+  nameSpan.className = "save-name";
+  nameSpan.textContent = fileName;
+  nameSpan.title = fileName;
+
+  const actions = document.createElement("div");
+  actions.className = "save-item-actions";
+
+  const renameBtn = document.createElement("button");
+  renameBtn.className = "ghost tiny";
+  renameBtn.textContent = "Rename";
+  renameBtn.addEventListener("click", async () => {
+    await renameSaveHandler(versionId, fileName);
+  });
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "ghost tiny danger";
+  deleteBtn.textContent = "Delete";
+  deleteBtn.addEventListener("click", async () => {
+    await deleteSaveHandler(versionId, fileName);
+  });
+
+  actions.append(renameBtn, deleteBtn);
+  item.append(nameSpan, actions);
+
+  return item;
+}
+
+async function importSaveHandler(versionId) {
+  try {
+    const filePath = await window.launcher.pickSaveFile();
+    if (!filePath) {
+      return;
+    }
+
+    await window.launcher.importSave(versionId, filePath);
+    showToast(`Save imported successfully`, "ok");
+    await renderSaves();
+  } catch (error) {
+    showToast(error.message || "Failed to import save", "error");
+  }
+}
+
+async function renameSaveHandler(versionId, oldName) {
+  const newName = prompt("Enter new save name:", oldName);
+
+  if (!newName || newName === oldName) {
+    return;
+  }
+
+  if (!newName.toLowerCase().endsWith(".save")) {
+    const confirmed = confirm(
+      "Filename does not end with .save. Continue anyway?"
+    );
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  try {
+    await window.launcher.renameSave(versionId, oldName, newName);
+    showToast(`Save renamed to "${newName}"`, "ok");
+    await renderSaves();
+  } catch (error) {
+    showToast(error.message || "Failed to rename save", "error");
+  }
+}
+
+async function deleteSaveHandler(versionId, fileName) {
+  const confirmed = confirm(`Delete save "${fileName}"?`);
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await window.launcher.deleteSave(versionId, fileName);
+    showToast(`Save deleted`, "ok");
+    await renderSaves();
+  } catch (error) {
+    showToast(error.message || "Failed to delete save", "error");
+  }
+}
+
 async function refreshState() {
   state = await window.launcher.getState();
   renderBasePanel();
   renderMods();
   renderPaths();
+  await renderSaves();
 }
 
 launchBaseButton.addEventListener("click", async () => {
@@ -128,6 +289,18 @@ openModsFolderButton.addEventListener("click", async () => {
 refreshModsButton.addEventListener("click", async () => {
   await refreshState();
   showToast("Refreshed", "info");
+});
+
+openSavesHelpButton.addEventListener("click", () => {
+  const help = [
+    "How Saves Work:",
+    "1. Export a .save file from the game",
+    "2. Click 'Import' to add it to the launcher",
+    "3. Save files are stored separately for each game version",
+    "4. Use the save filename like a password to load your game state",
+    "5. You can rename and organize saves here"
+  ].join("\n");
+  alert(help);
 });
 
 refreshState().catch((error) => {
