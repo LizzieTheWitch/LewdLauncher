@@ -227,12 +227,8 @@ async function importSaveHandler(versionId) {
 
 async function exportSaveHandler(versionId, fileName) {
   try {
-    const exportPath = await window.launcher.exportSave(versionId, fileName);
-    if (!exportPath) {
-      return;
-    }
-
-    showToast(`Save exported to ${exportPath}`, "ok");
+    await window.launcher.exportSave(versionId, fileName);
+    showToast(`Save folder opened - copy "${fileName}" to backup it`, "ok");
   } catch (error) {
     showToast(error.message || "Failed to export save", "error");
   }
